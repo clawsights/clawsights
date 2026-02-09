@@ -29,6 +29,20 @@ export function ProfileCard({ user, userStats, percentiles }: ProfileCardProps) 
     ? JSON.parse(userStats.hourCounts)
     : null;
 
+  const usageNarrative: {
+    paragraphs: string[];
+    keyInsight: string | null;
+  } | null = userStats.usageNarrative
+    ? JSON.parse(userStats.usageNarrative)
+    : null;
+
+  const impressiveThings: {
+    intro: string | null;
+    wins: { title: string; description: string }[];
+  } | null = userStats.impressiveThings
+    ? JSON.parse(userStats.impressiveThings)
+    : null;
+
   return (
     <div className="space-y-6">
       {/* User Header */}
@@ -100,6 +114,54 @@ export function ProfileCard({ user, userStats, percentiles }: ProfileCardProps) 
           pct={userStats.multiclaudePct ?? 0}
           percentile={percentiles.multiclaude}
         />
+      )}
+
+      {/* How You Use Claude Code */}
+      {usageNarrative && (
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">
+            How They Use Claude Code
+          </h2>
+          <div className="space-y-3">
+            {usageNarrative.paragraphs.map((p, i) => (
+              <p key={i} className="text-sm text-zinc-300 leading-relaxed">
+                {p}
+              </p>
+            ))}
+            {usageNarrative.keyInsight && (
+              <div className="mt-4 rounded-lg bg-zinc-800 border border-zinc-700 px-4 py-3">
+                <p className="text-sm text-zinc-200">{usageNarrative.keyInsight}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Impressive Things */}
+      {impressiveThings && impressiveThings.wins.length > 0 && (
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-5">
+          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">
+            Impressive Things
+          </h2>
+          {impressiveThings.intro && (
+            <p className="text-sm text-zinc-400 mb-4">{impressiveThings.intro}</p>
+          )}
+          <div className="space-y-4">
+            {impressiveThings.wins.map((win, i) => (
+              <div
+                key={i}
+                className="rounded-lg bg-zinc-800 border border-zinc-700 p-4"
+              >
+                <h3 className="text-sm font-semibold text-zinc-100 mb-1">
+                  {win.title}
+                </h3>
+                <p className="text-sm text-zinc-400 leading-relaxed">
+                  {win.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

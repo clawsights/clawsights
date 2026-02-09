@@ -115,6 +115,55 @@ describe("parseReport", () => {
     });
   });
 
+  describe("usage narrative parsing", () => {
+    it("extracts paragraphs from narrative section", () => {
+      expect(result.usageNarrative).not.toBeNull();
+      expect(result.usageNarrative!.paragraphs.length).toBe(3);
+    });
+
+    it("strips HTML tags from paragraphs", () => {
+      const first = result.usageNarrative!.paragraphs[0];
+      expect(first).not.toContain("<strong>");
+      expect(first).toContain("extremely high-volume, fast-paced user");
+    });
+
+    it("extracts key insight", () => {
+      expect(result.usageNarrative!.keyInsight).not.toBeNull();
+      expect(result.usageNarrative!.keyInsight).toContain("Key pattern:");
+      expect(result.usageNarrative!.keyInsight).toContain("ultra-high-volume power user");
+    });
+  });
+
+  describe("impressive things parsing", () => {
+    it("extracts intro text", () => {
+      expect(result.impressiveThings).not.toBeNull();
+      expect(result.impressiveThings!.intro).toContain("power user running nearly 4,800 sessions");
+    });
+
+    it("extracts all wins", () => {
+      expect(result.impressiveThings!.wins.length).toBe(3);
+    });
+
+    it("extracts win titles", () => {
+      const titles = result.impressiveThings!.wins.map((w) => w.title);
+      expect(titles).toContain("Parallel Agent Merge Conflict Resolution");
+      expect(titles).toContain("Full-Stack Metrics Implementation");
+      expect(titles).toContain("Visual UI Verification With Screenshots");
+    });
+
+    it("extracts win descriptions", () => {
+      const first = result.impressiveThings!.wins[0];
+      expect(first.description).toContain("parallel agents to resolve merge conflicts");
+    });
+
+    it("strips HTML tags from wins", () => {
+      for (const win of result.impressiveThings!.wins) {
+        expect(win.title).not.toContain("<");
+        expect(win.description).not.toContain("<");
+      }
+    });
+  });
+
   describe("edge cases", () => {
     it("returns nulls for empty HTML", () => {
       const empty = parseReport("");
@@ -130,6 +179,8 @@ describe("parseReport", () => {
       expect(empty.languages).toEqual({});
       expect(empty.multiclaudeEvents).toBeNull();
       expect(empty.hourCounts).toEqual({});
+      expect(empty.usageNarrative).toBeNull();
+      expect(empty.impressiveThings).toBeNull();
     });
 
     it("handles HTML with only a subtitle", () => {

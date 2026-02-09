@@ -6,7 +6,11 @@ import { parseReport } from "@/lib/parse-report";
 import { computePercentiles } from "@/lib/percentiles";
 
 export async function POST(request: NextRequest) {
-  let body: { github_token?: string; report_html?: string };
+  let body: {
+    github_token?: string;
+    report_html?: string;
+    include_narratives?: boolean;
+  };
   try {
     body = await request.json();
   } catch {
@@ -16,7 +20,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { github_token, report_html } = body;
+  const { github_token, report_html, include_narratives } = body;
 
   if (!github_token || !report_html) {
     return NextResponse.json(
@@ -104,6 +108,12 @@ export async function POST(request: NextRequest) {
         multiclaudeSessions: parsed.multiclaudeSessions,
         multiclaudePct: parsed.multiclaudePct,
         hourCounts: JSON.stringify(parsed.hourCounts),
+        usageNarrative: include_narratives && parsed.usageNarrative
+          ? JSON.stringify(parsed.usageNarrative)
+          : null,
+        impressiveThings: include_narratives && parsed.impressiveThings
+          ? JSON.stringify(parsed.impressiveThings)
+          : null,
       })
       .onConflictDoUpdate({
         target: stats.userId,
@@ -123,6 +133,12 @@ export async function POST(request: NextRequest) {
           multiclaudeSessions: parsed.multiclaudeSessions,
           multiclaudePct: parsed.multiclaudePct,
           hourCounts: JSON.stringify(parsed.hourCounts),
+          usageNarrative: include_narratives && parsed.usageNarrative
+            ? JSON.stringify(parsed.usageNarrative)
+            : null,
+          impressiveThings: include_narratives && parsed.impressiveThings
+            ? JSON.stringify(parsed.impressiveThings)
+            : null,
           uploadedAt: new Date().toISOString(),
         },
       });

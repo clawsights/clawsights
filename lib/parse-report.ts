@@ -13,6 +13,11 @@ export interface ParsedReport {
   multiclaudeSessions: number | null;
   multiclaudePct: number | null;
   hourCounts: Record<string, number>;
+  usageNarrative: { paragraphs: string[]; keyInsight: string | null } | null;
+  impressiveThings: {
+    intro: string | null;
+    wins: { title: string; description: string }[];
+  } | null;
 }
 
 function parseNum(s: string): number | null {
@@ -43,6 +48,8 @@ export function parseReport(html: string): ParsedReport {
     multiclaudeSessions: null,
     multiclaudePct: null,
     hourCounts: {},
+    usageNarrative: null,
+    impressiveThings: null,
   };
 
   // Parse subtitle: "38,539 messages across 4769 sessions | 2025-12-19 to 2026-02-09"
@@ -126,6 +133,50 @@ export function parseReport(html: string): ParsedReport {
         result.multiclaudePct = parseNum(val.replace("%", ""));
       }
     }
+  }
+
+  // Parse "How You Use Claude Code" narrative
+  const narrativeSection = html.match(
+    /<div class="narrative">([\s\S]*?)<\/div>\s*(?:<div class="key-insight">[\s\S]*?<\/div>)?\s*<\/div>/
+  );
+  if (narrativeSection) {
+    const paragraphs: string[] = [];
+    const pPattern = /<p>([\s\S]*?)<\/p>/g;
+    let pMatch;
+    while ((pMatch = pPattern.exec(narrativeSection[1])) !== null) {
+      // Strip HTML tags to get plain text
+      paragraphs.push(pMatch[1].replace(/<[^>]+>/g, "").trim());
+    }
+    const insightMatch = html.match(
+      /<div class="key-insight">[\s\S]*?<strong>([^<]*)<\/strong>\s*([\s\S]*?)<\/div>/
+    );
+    const keyInsight = insightMatch
+      ? `${insightMatch[1]} ${insightMatch[2]}`.replace(/<[^>]+>/g, "").trim()
+      : null;
+    if (paragraphs.length > 0) {
+      result.usageNarrative = { paragraphs, keyInsight };
+    }
+  }
+
+  // Parse "Impressive Things You Did"
+  const introMatch = html.match(
+    /id="section-wins"[\s\S]*?<p class="section-intro">([\s\S]*?)<\/p>/
+  );
+  const wins: { title: string; description: string }[] = [];
+  const winPattern =
+    /<div class="big-win-title">([\s\S]*?)<\/div>\s*<div class="big-win-desc">([\s\S]*?)<\/div>/g;
+  let winMatch;
+  while ((winMatch = winPattern.exec(html)) !== null) {
+    wins.push({
+      title: winMatch[1].replace(/<[^>]+>/g, "").trim(),
+      description: winMatch[2].replace(/<[^>]+>/g, "").trim(),
+    });
+  }
+  if (wins.length > 0) {
+    const intro = introMatch
+      ? introMatch[1].replace(/<[^>]+>/g, "").trim()
+      : null;
+    result.impressiveThings = { intro, wins };
   }
 
   // Parse hour counts from the rawHourCounts JS variable

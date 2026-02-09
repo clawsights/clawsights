@@ -35,6 +35,8 @@ export const stats = sqliteTable("stats", {
   multiclaudeSessions: integer("multiclaude_sessions"),
   multiclaudePct: real("multiclaude_pct"),
   hourCounts: text("hour_counts"), // JSON: {"3": 16, "7": 40, ...}
+  usageNarrative: text("usage_narrative"), // JSON: { paragraphs: string[], keyInsight: string }
+  impressiveThings: text("impressive_things"), // JSON: { intro: string, wins: [{ title, desc }] }
   uploadedAt: text("uploaded_at")
     .notNull()
     .$defaultFn(() => new Date().toISOString()),

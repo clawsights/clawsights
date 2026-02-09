@@ -43,7 +43,7 @@ Also extract the subtitle line for the preview. It looks like:
 <p class="subtitle">38,539 messages across 4769 sessions | 2025-12-19 to 2026-02-09</p>
 ```
 
-## Step 4: Show Preview and Confirm
+## Step 4: Show Preview and Ask About Narratives
 
 Display this to the user:
 
@@ -56,9 +56,21 @@ Date range: {date_from} to {date_to}
 This will be publicly visible at clawsights.dev/{handle}
 ```
 
-Ask the user: "Ready to upload? (yes/no)"
+Then use the AskUserQuestion tool to ask TWO questions:
 
-If they say no, stop here.
+**Question 1:** "Include narrative sections on your public profile?"
+- Options:
+  - "Yes" — Include "How You Use Claude Code" and "Impressive Things You Did" sections on your profile
+  - "No" — Only show quantitative stats (messages, lines, languages, etc.)
+
+**Question 2:** "Ready to upload?"
+- Options:
+  - "Upload" — Upload stats to clawsights.dev
+  - "Cancel" — Don't upload anything
+
+If they choose Cancel, stop here.
+
+Store whether they chose to include narratives as `include_narratives` (true/false).
 
 ## Step 5: Upload
 
@@ -67,10 +79,11 @@ Make a POST request:
 ```bash
 curl -s -X POST https://clawsights.dev/api/upload \
   -H "Content-Type: application/json" \
-  -d "{\"github_token\": \"TOKEN_HERE\", \"report_html\": $(cat ~/.claude/usage-data/report.html | jq -Rs .)}"
+  -d "{\"github_token\": \"TOKEN_HERE\", \"report_html\": $(cat ~/.claude/usage-data/report.html | jq -Rs .), \"include_narratives\": BOOLEAN_HERE}"
 ```
 
 Replace `TOKEN_HERE` with the actual token from Step 1.
+Replace `BOOLEAN_HERE` with `true` or `false` based on the user's choice in Step 4.
 
 ## Step 6: Show Result
 
