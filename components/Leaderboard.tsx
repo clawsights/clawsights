@@ -1,54 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { User, Stat } from "@/lib/schema";
-import { computePercentiles, type Percentiles } from "@/lib/percentiles";
-import { PercentileBadge } from "./PercentileBadge";
-
-type Tab = "messages" | "sessions" | "velocity" | "scale" | "multiclaude";
-
-const tabs: { key: Tab; label: string }[] = [
-  { key: "messages", label: "Messages" },
-  { key: "sessions", label: "Sessions" },
-  { key: "velocity", label: "Velocity" },
-  { key: "scale", label: "Scale" },
-  { key: "multiclaude", label: "Multi-clauding" },
-];
-
-function getStatValue(stat: Stat, tab: Tab): number {
-  switch (tab) {
-    case "messages":
-      return stat.totalMessages ?? 0;
-    case "sessions":
-      return stat.totalSessions ?? 0;
-    case "velocity":
-      return stat.msgsPerDay ?? 0;
-    case "scale":
-      return (stat.linesAdded ?? 0) + (stat.linesRemoved ?? 0);
-    case "multiclaude":
-      return stat.multiclaudeEvents ?? 0;
-  }
-}
-
-function formatValue(value: number, tab: Tab): string {
-  if (tab === "velocity") return value.toFixed(1);
-  return value.toLocaleString();
-}
-
-function getStatLabel(tab: Tab): string {
-  switch (tab) {
-    case "messages":
-      return "msgs";
-    case "sessions":
-      return "sessions";
-    case "velocity":
-      return "msgs/day";
-    case "scale":
-      return "lines";
-    case "multiclaude":
-      return "events";
-  }
-}
 
 interface LeaderboardProps {
   users: User[];
@@ -56,95 +9,110 @@ interface LeaderboardProps {
 }
 
 export function Leaderboard({ users, allStats }: LeaderboardProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("messages");
+  const [search, setSearch] = useState("");
 
   const userMap = new Map(users.map((u) => [u.id, u]));
 
-  const rows = allStats
-    .map((stat) => {
-      const user = userMap.get(stat.userId);
-      if (!user) return null;
-      const percentiles = computePercentiles(stat, allStats);
-      return { user, stat, percentiles };
-    })
-    .filter(
-      (r): r is { user: User; stat: Stat; percentiles: Percentiles } =>
-        r !== null
-    )
-    .sort((a, b) => getStatValue(b.stat, activeTab) - getStatValue(a.stat, activeTab));
+  const rows = useMemo(() => {
+    return allStats
+      .map((stat) => {
+        const user = userMap.get(stat.userId);
+        if (!user) return null;
+        return { user, stat };
+      })
+      .filter((r): r is { user: User; stat: Stat } => r !== null)
+      .sort(
+        (a, b) =>
+          (b.stat.linesAdded ?? 0) +
+          (b.stat.linesRemoved ?? 0) -
+          ((a.stat.linesAdded ?? 0) + (a.stat.linesRemoved ?? 0))
+      );
+  }, [allStats]);
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return rows;
+    const q = search.toLowerCase();
+    return rows.filter(
+      (r) =>
+        r.user.githubHandle.toLowerCase().includes(q) ||
+        r.user.displayName?.toLowerCase().includes(q)
+    );
+  }, [rows, search]);
 
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
-      {/* Tabs */}
-      <div className="flex border-b border-zinc-800 overflow-x-auto">
-        {tabs.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setActiveTab(key)}
-            className={`px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
-              activeTab === key
-                ? "text-zinc-100 border-b-2 border-zinc-100 bg-zinc-800/50"
-                : "text-zinc-500 hover:text-zinc-300"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+    <div>
+      {/* Search */}
+      <div className="relative mb-6">
+        <svg
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-transparent border-b border-zinc-800 pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+        />
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="text-xs text-zinc-500 uppercase tracking-wider">
-              <th className="px-4 py-3 text-left w-12">#</th>
-              <th className="px-4 py-3 text-left">User</th>
-              <th className="px-4 py-3 text-right">{getStatLabel(activeTab)}</th>
-              <th className="px-4 py-3 text-right">Rank</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-800/50">
-            {rows.map((row, i) => (
-              <tr
-                key={row.user.id}
-                className="hover:bg-zinc-800/30 transition-colors"
-              >
-                <td className="px-4 py-3 text-sm text-zinc-500 font-mono">
-                  {i + 1}
-                </td>
-                <td className="px-4 py-3">
-                  <a
-                    href={`/${row.user.githubHandle}`}
-                    className="flex items-center gap-3 group"
-                  >
-                    {row.user.avatarUrl ? (
-                      <img
-                        src={row.user.avatarUrl}
-                        alt={row.user.githubHandle}
-                        width={32}
-                        height={32}
-                        className="rounded-full"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-xs text-zinc-400">
-                        {row.user.githubHandle[0].toUpperCase()}
-                      </div>
-                    )}
-                    <span className="text-sm text-zinc-300 group-hover:text-zinc-100 transition-colors">
-                      @{row.user.githubHandle}
-                    </span>
-                  </a>
-                </td>
-                <td className="px-4 py-3 text-right text-sm font-mono text-zinc-200">
-                  {formatValue(getStatValue(row.stat, activeTab), activeTab)}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <PercentileBadge percentile={row.percentiles[activeTab]} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Header */}
+      <div className="flex items-center py-3 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider">
+        <span className="w-10 text-center">#</span>
+        <span className="flex-1 pl-2">User</span>
+        <span className="text-right w-52 pr-4">Lines</span>
+      </div>
+
+      {/* Rows */}
+      <div>
+        {filtered.map((row, i) => (
+          <a
+            key={row.user.id}
+            href={`/${row.user.githubHandle}`}
+            className="flex items-center py-4 border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors group"
+          >
+            <span className="w-10 text-center text-sm text-zinc-500 font-mono">
+              {i + 1}
+            </span>
+            <div className="flex-1 flex items-center gap-3 pl-2">
+              {row.user.avatarUrl ? (
+                <img
+                  src={row.user.avatarUrl}
+                  alt={row.user.githubHandle}
+                  width={28}
+                  height={28}
+                  className="rounded-full"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-400">
+                  {row.user.githubHandle[0].toUpperCase()}
+                </div>
+              )}
+              <span className="text-sm font-medium text-zinc-200 group-hover:text-zinc-100 transition-colors">
+                {row.user.githubHandle}
+              </span>
+            </div>
+            <span className="text-right w-52 pr-4 text-sm font-mono whitespace-nowrap">
+              <span className="text-green-500">+{(row.stat.linesAdded ?? 0).toLocaleString()}</span>
+              {" "}
+              <span className="text-red-500">-{(row.stat.linesRemoved ?? 0).toLocaleString()}</span>
+            </span>
+          </a>
+        ))}
+        {filtered.length === 0 && (
+          <div className="py-8 text-center text-sm text-zinc-500">
+            No users found
+          </div>
+        )}
       </div>
     </div>
   );

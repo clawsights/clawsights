@@ -26,19 +26,9 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
           <header className="border-b border-zinc-800 px-6 py-4">
             <div className="max-w-5xl mx-auto flex items-center justify-between">
-              <a href="/" className="flex items-center gap-2">
-                <span className="text-xl font-bold tracking-tight">
-                  Clawsights
-                </span>
-                <span className="text-xs text-zinc-500 font-mono">
-                  Claude Code Leaderboard
-                </span>
+              <a href="/" className="text-xl font-bold tracking-tight">
+                Clawsights
               </a>
-              <nav className="flex gap-4 text-sm text-zinc-400">
-                <a href="/" className="hover:text-zinc-100 transition-colors">
-                  Leaderboard
-                </a>
-              </nav>
             </div>
           </header>
           <main className="flex-1">{children}</main>

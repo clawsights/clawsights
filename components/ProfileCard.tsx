@@ -47,9 +47,6 @@ export function ProfileCard({ user, userStats, percentiles }: ProfileCardProps) 
           {user.displayName && (
             <p className="text-zinc-400 text-lg">{user.displayName}</p>
           )}
-          <p className="text-zinc-500 text-sm mt-1">
-            Member since {formatMonth(user.createdAt)}
-          </p>
         </div>
       </div>
 
