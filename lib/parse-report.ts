@@ -89,9 +89,9 @@ export function parseReport(html: string): ParsedReport {
   }
 
   // Parse languages chart
-  // <div class="chart-title">Languages</div> followed by bar rows
+  // <div class="chart-title">Languages</div> followed by bar rows, ending at next chart-card
   const langSection = html.match(
-    /<div class="chart-title">Languages<\/div>([\s\S]*?)(?:<\/div>\s*<div class="chart-card">|<\/div>\s*<\/div>\s*<\/div>)/
+    /<div class="chart-title">Languages<\/div>([\s\S]*?)<div class="chart-title">/
   );
   if (langSection) {
     const langBarPattern =
