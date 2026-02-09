@@ -21,6 +21,14 @@ npm run db:push
 npm run dev
 ```
 
+To test the skill against your local server, launch Claude Code with `CLAWSIGHTS_URL` set:
+
+```bash
+CLAWSIGHTS_URL=http://localhost:3000 claude
+```
+
+Then run `/clawsights` as normal — uploads will go to localhost instead of production.
+
 ## Tests
 
 ```bash

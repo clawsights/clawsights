@@ -1,6 +1,6 @@
 ---
 name: clawsights
-description: Upload your Claude Code usage stats to the Clawsights leaderboard. Runs /insights, extracts your stats, and uploads them to see where you rank among other Claude Code users.
+description: Upload your Claude Code usage stats to the Clawsights leaderboard.
 version: 1.0.0
 author: clawsights
 tags:
@@ -10,9 +10,19 @@ tags:
 
 # Clawsights — Upload Your Claude Code Stats
 
-Follow these steps exactly:
+Before starting, create a task list with these items so the user can see progress:
+1. Get GitHub identity
+2. Generate insights report
+3. Read and preview report
+4. Confirm upload preferences
+5. Upload to Clawsights
+6. Show results
+
+Mark each task as in_progress when you start it and completed when done. Follow these steps exactly:
 
 ## Step 1: Get GitHub Identity
+
+Tell the user: "I'll grab your GitHub identity so Clawsights can create your profile at clawsights.dev/{handle}."
 
 Run these commands to get the user's GitHub handle and auth token:
 
@@ -45,18 +55,31 @@ Also extract the subtitle line for the preview. It looks like:
 
 ## Step 4: Show Preview and Ask About Narratives
 
-Display this to the user:
+Display a preview of what will appear on their profile. Extract these from the report HTML and show them:
 
 ```
 === Clawsights Upload Preview ===
 GitHub: @{handle}
-{subtitle text, e.g. "38,539 messages across 4,769 sessions"}
 Date range: {date_from} to {date_to}
+
+Messages:      {totalMessages}
+Sessions:      {totalSessions}
+Lines Changed: +{linesAdded} / -{linesRemoved}
+Days Active:   {daysActive}
+Msgs/Day:      {msgsPerDay}
+Files Touched: {filesTouched}
+Top Languages: {top 3 languages from the chart}
+
+How You Use Claude Code:
+  {first 3 lines of the usage narrative, followed by "..."}
+
+Impressive Things You Did:
+  {first 3 win titles, followed by "..."}
 
 This will be publicly visible at clawsights.dev/{handle}
 ```
 
-Then use the AskUserQuestion tool to ask TWO questions:
+Omit any section that has no data. Then use the AskUserQuestion tool to ask TWO questions:
 
 **Question 1:** "Include narrative sections on your public profile?"
 - Options:
@@ -74,14 +97,21 @@ Store whether they chose to include narratives as `include_narratives` (true/fal
 
 ## Step 5: Upload
 
-Make a POST request:
+First, determine the upload URL. Run this command and use the output as the base URL:
 
 ```bash
-curl -s -X POST https://clawsights.dev/api/upload \
+echo ${CLAWSIGHTS_URL:-https://clawsights.dev}
+```
+
+Then make a POST request using that base URL:
+
+```bash
+curl -s -X POST BASE_URL/api/upload \
   -H "Content-Type: application/json" \
   -d "{\"github_token\": \"TOKEN_HERE\", \"report_html\": $(cat ~/.claude/usage-data/report.html | jq -Rs .), \"include_narratives\": BOOLEAN_HERE}"
 ```
 
+Replace `BASE_URL` with the output from the echo command above.
 Replace `TOKEN_HERE` with the actual token from Step 1.
 Replace `BOOLEAN_HERE` with `true` or `false` based on the user's choice in Step 4.
 
