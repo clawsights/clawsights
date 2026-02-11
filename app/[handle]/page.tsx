@@ -34,18 +34,20 @@ export default async function ProfilePage({
   const percentiles = computePercentiles(userStats, allStats);
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-10">
-      <a
-        href="/"
-        className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8"
-      >
-        &larr; Back to Leaderboard
-      </a>
-      <ProfileCard
-        user={user}
-        userStats={userStats}
-        percentiles={percentiles}
-      />
+    <div className="py-4 sm:py-10">
+      <div className="max-w-5xl mx-auto">
+        <a
+          href="/"
+          className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8"
+        >
+          &larr; Back to Leaderboard
+        </a>
+        <ProfileCard
+          user={user}
+          userStats={userStats}
+          percentiles={percentiles}
+        />
+      </div>
     </div>
   );
 }

@@ -1,11 +1,18 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { User, Stat } from "@/lib/schema";
+import Image from "next/image";
+import type { User } from "@/lib/schema";
+
+type LeaderboardStat = {
+  userId: number;
+  linesAdded: number | null;
+  linesRemoved: number | null;
+};
 
 interface LeaderboardProps {
   users: User[];
-  allStats: Stat[];
+  allStats: LeaderboardStat[];
 }
 
 export function Leaderboard({ users, allStats }: LeaderboardProps) {
@@ -20,7 +27,7 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
         if (!user) return null;
         return { user, stat };
       })
-      .filter((r): r is { user: User; stat: Stat } => r !== null)
+      .filter((r): r is { user: User; stat: LeaderboardStat } => r !== null)
       .sort(
         (a, b) =>
           (b.stat.linesAdded ?? 0) +
@@ -67,7 +74,7 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
 
       {/* Header */}
       <div className="flex items-center py-3 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider">
-        <span className="w-10 text-center">#</span>
+        <span className="w-6">#</span>
         <span className="flex-1 pl-2">User</span>
         <span className="text-right w-52 pr-4">Lines</span>
       </div>
@@ -80,12 +87,12 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
             href={`/${row.user.githubHandle}`}
             className="flex items-center py-4 border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors group"
           >
-            <span className="w-10 text-center text-sm text-zinc-500 font-mono">
+            <span className="w-6 text-sm text-zinc-500 font-mono">
               {i + 1}
             </span>
-            <div className="flex-1 flex items-center gap-3 pl-2">
+            <div className="flex-1 min-w-0 flex items-center gap-3 pl-2">
               {row.user.avatarUrl ? (
-                <img
+                <Image
                   src={row.user.avatarUrl}
                   alt={row.user.githubHandle}
                   width={28}
@@ -97,13 +104,12 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
                   {row.user.githubHandle[0].toUpperCase()}
                 </div>
               )}
-              <span className="text-sm font-medium text-zinc-200 group-hover:text-zinc-100 transition-colors">
+              <span className="text-sm font-medium text-zinc-200 group-hover:text-zinc-100 transition-colors truncate">
                 {row.user.githubHandle}
               </span>
             </div>
-            <span className="text-right w-52 pr-4 text-sm font-mono whitespace-nowrap">
+            <span className="text-right pr-4 text-sm font-mono flex flex-col sm:flex-row sm:gap-2 items-end sm:items-center">
               <span className="text-green-500">+{(row.stat.linesAdded ?? 0).toLocaleString()}</span>
-              {" "}
               <span className="text-red-500">-{(row.stat.linesRemoved ?? 0).toLocaleString()}</span>
             </span>
           </a>

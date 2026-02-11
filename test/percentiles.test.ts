@@ -26,6 +26,8 @@ function makeStat(overrides: Partial<Stat> = {}): Stat {
     multiclaudeSessions: 0,
     multiclaudePct: 0,
     hourCounts: null,
+    usageNarrative: null,
+    impressiveThings: null,
     uploadedAt: new Date().toISOString(),
     ...overrides,
   };

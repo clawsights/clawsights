@@ -15,7 +15,7 @@ export function PercentileBadge({
 }: PercentileBadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${percentileColor(percentile)} ${percentileBgColor(percentile)} ${className}`}
+      className={`inline-flex items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-medium ${percentileColor(percentile)} ${percentileBgColor(percentile)} ${className}`}
     >
       {formatPercentile(percentile)}
     </span>

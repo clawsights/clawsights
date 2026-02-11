@@ -53,7 +53,7 @@ export function ProfileCard({ user, userStats, percentiles }: ProfileCardProps) 
             alt={user.githubHandle}
             width={80}
             height={80}
-            className="rounded-full ring-2 ring-zinc-700"
+            className="w-14 h-14 sm:w-20 sm:h-20 rounded-full ring-2 ring-zinc-700"
           />
         )}
         <div>
