@@ -42,7 +42,7 @@ export default async function HomePage() {
           <p className="text-xs font-mono uppercase tracking-widest text-slate-500 mb-2">
             Install &amp; run the skill
           </p>
-          <CopyCommand command={'npx skills add clawsights/clawsights --agent claude-code && claude "/clawsights"'} />
+          <CopyCommand command={'npx skills add clawsights/clawsights -a claude-code -g && claude "/clawsights"'} />
         </div>
 
         {totalUsers > 0 && (
