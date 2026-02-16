@@ -25,18 +25,9 @@ export const stats = sqliteTable("stats", {
   totalSessions: integer("total_sessions"),
   linesAdded: integer("lines_added"),
   linesRemoved: integer("lines_removed"),
-  filesTouched: integer("files_touched"),
-  daysActive: integer("days_active"),
   msgsPerDay: real("msgs_per_day"),
   dateFrom: text("date_from"),
   dateTo: text("date_to"),
-  languages: text("languages"), // JSON: {"TypeScript": 96431, ...}
-  multiclaudeEvents: integer("multiclaude_events"),
-  multiclaudeSessions: integer("multiclaude_sessions"),
-  multiclaudePct: real("multiclaude_pct"),
-  hourCounts: text("hour_counts"), // JSON: {"3": 16, "7": 40, ...}
-  usageNarrative: text("usage_narrative"), // JSON: { paragraphs: string[], keyInsight: string }
-  impressiveThings: text("impressive_things"), // JSON: { intro: string, wins: [{ title, desc }] }
   ghTotalCommits: integer("gh_total_commits"),
   ghActiveDays: integer("gh_active_days"),
   ghTotalContributions: integer("gh_total_contributions"),

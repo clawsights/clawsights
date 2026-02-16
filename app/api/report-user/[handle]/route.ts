@@ -37,8 +37,6 @@ export async function GET(
         lines.push(`- Messages: ${stat.totalMessages.toLocaleString()}`);
       if (stat.totalSessions != null)
         lines.push(`- Sessions: ${stat.totalSessions.toLocaleString()}`);
-      if (stat.daysActive != null)
-        lines.push(`- Days Active: ${stat.daysActive}`);
       if (stat.linesAdded != null)
         lines.push(`- Lines Added: ${stat.linesAdded.toLocaleString()}`);
       if (stat.linesRemoved != null)

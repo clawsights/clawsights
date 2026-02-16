@@ -65,10 +65,7 @@ Date range: {date_from} to {date_to}
 Messages:      {totalMessages}
 Sessions:      {totalSessions}
 Lines Changed: +{linesAdded} / -{linesRemoved}
-Days Active:   {daysActive}
 Msgs/Day:      {msgsPerDay}
-Files Touched: {filesTouched}
-Top Languages: {top 3 languages from the chart}
 
 This will be publicly visible at clawsights.com/{handle}
 Your full insights report will be embedded on your profile page.
@@ -108,13 +105,7 @@ Parse the JSON response and display:
 
 ```
 Uploaded! View your profile: https://clawsights.com/{handle}
-
-Your percentiles:
-  Messages: top {X}%
-  Sessions: top {X}%
-  Velocity: top {X}%
-  Scale: top {X}%
-  Multi-clauding: top {X}%
+Leaderboard rank: #{rank} out of {total_users} users
 ```
 
 If the upload fails, show the error message from the response.

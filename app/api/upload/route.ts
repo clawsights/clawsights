@@ -4,13 +4,12 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { users, stats } from "@/lib/schema";
 import { parseReport } from "@/lib/parse-report";
-import { computePercentiles } from "@/lib/percentiles";
+import { fetchGitHubContributions } from "@/lib/github-contributions";
 
 export async function POST(request: NextRequest) {
   let body: {
     github_token?: string;
     report_html?: string;
-    include_narratives?: boolean;
   };
   try {
     body = await request.json();
@@ -21,7 +20,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { github_token, report_html, include_narratives } = body;
+  const { github_token, report_html } = body;
 
   if (!github_token || !report_html) {
     return NextResponse.json(
@@ -54,6 +53,26 @@ export async function POST(request: NextRequest) {
       { error: "Failed to parse report HTML" },
       { status: 400 },
     );
+  }
+
+  // Fetch GitHub contributions for the date range
+  let ghTotalCommits: number | null = null;
+  let ghActiveDays: number | null = null;
+  let ghTotalContributions: number | null = null;
+  let ghContributions: string | null = null;
+
+  if (parsed.dateFrom && parsed.dateTo) {
+    const contributions = await fetchGitHubContributions(
+      github_token,
+      parsed.dateFrom,
+      parsed.dateTo,
+    );
+    if (contributions) {
+      ghTotalCommits = contributions.totalCommits;
+      ghActiveDays = contributions.activeDays;
+      ghTotalContributions = contributions.totalContributions;
+      ghContributions = JSON.stringify(contributions.weeks);
+    }
   }
 
   try {
@@ -99,22 +118,13 @@ export async function POST(request: NextRequest) {
         totalSessions: parsed.totalSessions,
         linesAdded: parsed.linesAdded,
         linesRemoved: parsed.linesRemoved,
-        filesTouched: parsed.filesTouched,
-        daysActive: parsed.daysActive,
         msgsPerDay: parsed.msgsPerDay,
         dateFrom: parsed.dateFrom,
         dateTo: parsed.dateTo,
-        languages: JSON.stringify(parsed.languages),
-        multiclaudeEvents: parsed.multiclaudeEvents,
-        multiclaudeSessions: parsed.multiclaudeSessions,
-        multiclaudePct: parsed.multiclaudePct,
-        hourCounts: JSON.stringify(parsed.hourCounts),
-        usageNarrative: include_narratives && parsed.usageNarrative
-          ? JSON.stringify(parsed.usageNarrative)
-          : null,
-        impressiveThings: include_narratives && parsed.impressiveThings
-          ? JSON.stringify(parsed.impressiveThings)
-          : null,
+        ghTotalCommits,
+        ghActiveDays,
+        ghTotalContributions,
+        ghContributions,
       })
       .onConflictDoUpdate({
         target: stats.userId,
@@ -124,40 +134,31 @@ export async function POST(request: NextRequest) {
           totalSessions: parsed.totalSessions,
           linesAdded: parsed.linesAdded,
           linesRemoved: parsed.linesRemoved,
-          filesTouched: parsed.filesTouched,
-          daysActive: parsed.daysActive,
           msgsPerDay: parsed.msgsPerDay,
           dateFrom: parsed.dateFrom,
           dateTo: parsed.dateTo,
-          languages: JSON.stringify(parsed.languages),
-          multiclaudeEvents: parsed.multiclaudeEvents,
-          multiclaudeSessions: parsed.multiclaudeSessions,
-          multiclaudePct: parsed.multiclaudePct,
-          hourCounts: JSON.stringify(parsed.hourCounts),
-          usageNarrative: include_narratives && parsed.usageNarrative
-            ? JSON.stringify(parsed.usageNarrative)
-            : null,
-          impressiveThings: include_narratives && parsed.impressiveThings
-            ? JSON.stringify(parsed.impressiveThings)
-            : null,
+          ghTotalCommits,
+          ghActiveDays,
+          ghTotalContributions,
+          ghContributions,
           uploadedAt: new Date().toISOString(),
         },
       });
 
-    // Fetch all stats for percentile computation
-    const allStats = await db.select().from(stats).all();
-    const userStats = allStats.find((s) => s.userId === userId)!;
-    const percentiles = computePercentiles(userStats, allStats);
+    // Compute leaderboard rank (sorted by total lines changed)
+    const allStats = await db
+      .select({ userId: stats.userId, linesAdded: stats.linesAdded, linesRemoved: stats.linesRemoved })
+      .from(stats)
+      .all();
+    const sorted = allStats
+      .map((s) => ({ userId: s.userId, total: (s.linesAdded ?? 0) + (s.linesRemoved ?? 0) }))
+      .sort((a, b) => b.total - a.total);
+    const rank = sorted.findIndex((s) => s.userId === userId) + 1;
 
     return NextResponse.json({
       profile_url: `/${login}`,
-      percentiles: {
-        messages: percentiles.messages,
-        sessions: percentiles.sessions,
-        velocity: percentiles.velocity,
-        scale: percentiles.scale,
-        multiclaude: percentiles.multiclaude,
-      },
+      rank,
+      total_users: sorted.length,
     });
   } catch (err) {
     Sentry.captureException(err);

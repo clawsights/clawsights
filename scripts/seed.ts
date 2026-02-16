@@ -35,6 +35,46 @@ const FAKE_USERS = [
   { githubHandle: "olivia-ops", githubId: 100015, displayName: "Olivia Ops", avatarUrl: "https://i.pravatar.cc/150?u=olivia" },
 ];
 
+/** Generate a synthetic GitHub contribution weeks array for seeding. */
+function generateFakeContributions(dateFrom: string, dateTo: string) {
+  const start = new Date(dateFrom);
+  const end = new Date(dateTo);
+  const weeks: { contributionDays: { contributionCount: number; date: string }[] }[] = [];
+
+  const current = new Date(start);
+  // Align to start of week (Sunday)
+  current.setDate(current.getDate() - current.getDay());
+
+  while (current <= end) {
+    const days: { contributionCount: number; date: string }[] = [];
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(current);
+      date.setDate(date.getDate() + d);
+      if (date >= start && date <= end) {
+        days.push({
+          contributionCount: Math.floor(Math.random() * 15),
+          date: date.toISOString().split("T")[0],
+        });
+      }
+    }
+    if (days.length > 0) {
+      weeks.push({ contributionDays: days });
+    }
+    current.setDate(current.getDate() + 7);
+  }
+
+  const totalContributions = weeks.reduce(
+    (sum, w) => sum + w.contributionDays.reduce((s, d) => s + d.contributionCount, 0),
+    0,
+  );
+  const activeDays = weeks.reduce(
+    (sum, w) => sum + w.contributionDays.filter((d) => d.contributionCount > 0).length,
+    0,
+  );
+
+  return { weeks, totalContributions, activeDays, totalCommits: Math.floor(totalContributions * 0.7) };
+}
+
 async function seed() {
   const reportPath = resolve(homedir(), ".claude/usage-data/report.html");
   let reportHtml: string;
@@ -49,6 +89,9 @@ async function seed() {
   const parsed = parseReport(reportHtml);
   console.log("Seeding database with report from", reportPath);
 
+  const dateFrom = parsed.dateFrom ?? "2025-12-19";
+  const dateTo = parsed.dateTo ?? "2026-02-09";
+
   for (const user of FAKE_USERS) {
     const [inserted] = await db
       .insert(schema.users)
@@ -59,6 +102,8 @@ async function seed() {
       })
       .returning();
 
+    const gh = generateFakeContributions(dateFrom, dateTo);
+
     await db
       .insert(schema.stats)
       .values({
@@ -66,6 +111,12 @@ async function seed() {
         reportHtml: reportHtml,
         linesAdded: parsed.linesAdded,
         linesRemoved: parsed.linesRemoved,
+        dateFrom,
+        dateTo,
+        ghTotalCommits: gh.totalCommits,
+        ghActiveDays: gh.activeDays,
+        ghTotalContributions: gh.totalContributions,
+        ghContributions: JSON.stringify(gh.weeks),
       })
       .onConflictDoUpdate({
         target: schema.stats.userId,
@@ -73,6 +124,12 @@ async function seed() {
           reportHtml: reportHtml,
           linesAdded: parsed.linesAdded,
           linesRemoved: parsed.linesRemoved,
+          dateFrom,
+          dateTo,
+          ghTotalCommits: gh.totalCommits,
+          ghActiveDays: gh.activeDays,
+          ghTotalContributions: gh.totalContributions,
+          ghContributions: JSON.stringify(gh.weeks),
           uploadedAt: new Date().toISOString(),
         },
       });
