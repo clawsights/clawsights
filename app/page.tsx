@@ -63,18 +63,8 @@ export default async function HomePage() {
         )}
       </div>
 
-      {/* Leaderboard or empty state */}
-      {allUsers.length > 0 ? (
-        <Leaderboard users={allUsers} allStats={allStats} />
-      ) : (
-        <div className="py-16 text-center">
-          <p className="text-slate-500 text-lg mb-2">No users yet</p>
-          <p className="text-slate-400 text-sm">
-            Run <code className="text-slate-700">/clawsights</code> in Claude
-            Code to upload your stats and appear on the leaderboard.
-          </p>
-        </div>
-      )}
+      {/* Leaderboard */}
+      <Leaderboard users={allUsers} allStats={allStats} />
     </div>
   );
 }

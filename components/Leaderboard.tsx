@@ -116,7 +116,7 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
         ))}
         {filtered.length === 0 && (
           <div className="py-8 text-center text-sm text-slate-500">
-            No users found
+            No users
           </div>
         )}
       </div>
