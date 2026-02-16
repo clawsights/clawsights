@@ -82,21 +82,14 @@ If they choose Cancel, stop here.
 
 ## Step 5: Upload
 
-First, determine the upload URL. Run this command and use the output as the base URL:
+Make a POST request to the Clawsights API:
 
 ```bash
-echo ${CLAWSIGHTS_URL:-https://clawsights.com}
-```
-
-Then make a POST request using that base URL:
-
-```bash
-curl -s -X POST BASE_URL/api/upload \
+curl -s -X POST https://clawsights.com/api/upload \
   -H "Content-Type: application/json" \
   -d "{\"github_token\": \"TOKEN_HERE\", \"report_html\": $(cat ~/.claude/usage-data/report.html | jq -Rs .)}"
 ```
 
-Replace `BASE_URL` with the output from the echo command above.
 Replace `TOKEN_HERE` with the actual token from Step 1.
 
 ## Step 6: Show Result
