@@ -12,7 +12,9 @@
     "db:generate": "drizzle-kit generate",
     "test": "vitest run",
     "test:watch": "vitest",
-    "update-fixture": "./scripts/update-sample-report.sh"
+    "update-fixture": "./scripts/update-sample-report.sh",
+    "db:seed": "npx tsx scripts/seed.ts",
+    "deploy": "cp .agents/skills/clawsights/SKILL.md skills/clawsights/SKILL.md && sed -i '' 's/localhost:3000/clawsights.com/g' skills/clawsights/SKILL.md && vercel --prod"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",

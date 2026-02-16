@@ -28,6 +28,10 @@ function makeStat(overrides: Partial<Stat> = {}): Stat {
     hourCounts: null,
     usageNarrative: null,
     impressiveThings: null,
+    ghTotalCommits: null,
+    ghActiveDays: null,
+    ghTotalContributions: null,
+    ghContributions: null,
     uploadedAt: new Date().toISOString(),
     ...overrides,
   };

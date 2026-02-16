@@ -51,7 +51,7 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
       {/* Search */}
       <div className="relative mb-6">
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -68,15 +68,15 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
           placeholder="Search users..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-transparent border-b border-zinc-800 pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+          className="w-full bg-transparent border-b border-slate-200 pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-400 transition-colors"
         />
       </div>
 
       {/* Header */}
-      <div className="flex items-center py-3 border-b border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider">
+      <div className="flex items-center py-3 border-b border-slate-200 text-xs text-slate-500 uppercase tracking-wider">
         <span className="w-6">#</span>
         <span className="flex-1 pl-2">User</span>
-        <span className="text-right w-52 pr-4">Lines</span>
+        <span className="text-right w-28 sm:w-52 pr-4">Lines</span>
       </div>
 
       {/* Rows */}
@@ -85,9 +85,9 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
           <a
             key={row.user.id}
             href={`/${row.user.githubHandle}`}
-            className="flex items-center py-4 border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors group"
+            className="flex items-center py-4 border-b border-slate-200/50 hover:bg-slate-100/50 transition-colors group"
           >
-            <span className="w-6 text-sm text-zinc-500 font-mono">
+            <span className="w-6 text-sm text-slate-500 font-mono">
               {i + 1}
             </span>
             <div className="flex-1 min-w-0 flex items-center gap-3 pl-2">
@@ -100,22 +100,22 @@ export function Leaderboard({ users, allStats }: LeaderboardProps) {
                   className="rounded-full"
                 />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-400">
+                <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-xs text-slate-500">
                   {row.user.githubHandle[0].toUpperCase()}
                 </div>
               )}
-              <span className="text-sm font-medium text-zinc-200 group-hover:text-zinc-100 transition-colors truncate">
+              <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors truncate">
                 {row.user.githubHandle}
               </span>
             </div>
-            <span className="text-right pr-4 text-sm font-mono flex flex-col sm:flex-row sm:gap-2 items-end sm:items-center">
-              <span className="text-green-500">+{(row.stat.linesAdded ?? 0).toLocaleString()}</span>
-              <span className="text-red-500">-{(row.stat.linesRemoved ?? 0).toLocaleString()}</span>
+            <span className="text-right pr-4 text-xs sm:text-sm font-mono flex flex-col sm:flex-row sm:gap-2 items-end sm:items-center w-28 sm:w-52 shrink-0">
+              <span className="text-green-600">+{(row.stat.linesAdded ?? 0).toLocaleString()}</span>
+              <span className="text-red-600">-{(row.stat.linesRemoved ?? 0).toLocaleString()}</span>
             </span>
           </a>
         ))}
         {filtered.length === 0 && (
-          <div className="py-8 text-center text-sm text-zinc-500">
+          <div className="py-8 text-center text-sm text-slate-500">
             No users found
           </div>
         )}

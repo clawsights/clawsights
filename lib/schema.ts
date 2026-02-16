@@ -37,6 +37,10 @@ export const stats = sqliteTable("stats", {
   hourCounts: text("hour_counts"), // JSON: {"3": 16, "7": 40, ...}
   usageNarrative: text("usage_narrative"), // JSON: { paragraphs: string[], keyInsight: string }
   impressiveThings: text("impressive_things"), // JSON: { intro: string, wins: [{ title, desc }] }
+  ghTotalCommits: integer("gh_total_commits"),
+  ghActiveDays: integer("gh_active_days"),
+  ghTotalContributions: integer("gh_total_contributions"),
+  ghContributions: text("gh_contributions"), // JSON: GitHub contribution calendar data
   uploadedAt: text("uploaded_at")
     .notNull()
     .$defaultFn(() => new Date().toISOString()),

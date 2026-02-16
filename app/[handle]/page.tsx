@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { users, stats } from "@/lib/schema";
-import { computePercentiles } from "@/lib/percentiles";
+import { users } from "@/lib/schema";
 import { ProfileCard } from "@/components/ProfileCard";
 
 export default async function ProfilePage({
@@ -21,32 +20,10 @@ export default async function ProfilePage({
     notFound();
   }
 
-  const [userStats] = await db
-    .select()
-    .from(stats)
-    .where(eq(stats.userId, user.id));
-
-  if (!userStats) {
-    notFound();
-  }
-
-  const allStats = await db.select().from(stats);
-  const percentiles = computePercentiles(userStats, allStats);
-
   return (
-    <div className="py-4 sm:py-10">
-      <div className="max-w-5xl mx-auto">
-        <a
-          href="/"
-          className="inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-8"
-        >
-          &larr; Back to Leaderboard
-        </a>
-        <ProfileCard
-          user={user}
-          userStats={userStats}
-          percentiles={percentiles}
-        />
+    <div className="py-4 sm:py-6 flex-1 flex flex-col min-h-0">
+      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-0">
+        <ProfileCard user={user} />
       </div>
     </div>
   );

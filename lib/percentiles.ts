@@ -70,17 +70,17 @@ export function formatPercentile(percentile: number): string {
  * Get color class for a percentile badge.
  */
 export function percentileColor(percentile: number): string {
-  if (percentile >= 90) return "text-emerald-400";
-  if (percentile >= 75) return "text-green-400";
-  if (percentile >= 50) return "text-yellow-400";
-  if (percentile >= 25) return "text-orange-400";
-  return "text-red-400";
+  if (percentile >= 90) return "text-emerald-700";
+  if (percentile >= 75) return "text-green-700";
+  if (percentile >= 50) return "text-yellow-700";
+  if (percentile >= 25) return "text-orange-700";
+  return "text-red-700";
 }
 
 export function percentileBgColor(percentile: number): string {
-  if (percentile >= 90) return "bg-emerald-400/10 border-emerald-400/20";
-  if (percentile >= 75) return "bg-green-400/10 border-green-400/20";
-  if (percentile >= 50) return "bg-yellow-400/10 border-yellow-400/20";
-  if (percentile >= 25) return "bg-orange-400/10 border-orange-400/20";
-  return "bg-red-400/10 border-red-400/20";
+  if (percentile >= 90) return "bg-emerald-100 border-emerald-300";
+  if (percentile >= 75) return "bg-green-100 border-green-300";
+  if (percentile >= 50) return "bg-yellow-100 border-yellow-300";
+  if (percentile >= 25) return "bg-orange-100 border-orange-300";
+  return "bg-red-100 border-red-300";
 }

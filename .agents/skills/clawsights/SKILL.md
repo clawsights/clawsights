@@ -14,7 +14,7 @@ Before starting, create a task list with these items so the user can see progres
 1. Get GitHub identity
 2. Generate insights report
 3. Read and preview report
-4. Confirm upload
+4. Confirm upload preferences
 5. Upload to Clawsights
 6. Show results
 
@@ -22,7 +22,7 @@ Mark each task as in_progress when you start it and completed when done. Follow 
 
 ## Step 1: Get GitHub Identity
 
-Tell the user: "I'll grab your GitHub identity so Clawsights can create your profile at clawsights.com/{handle}."
+Tell the user: "I'll grab your GitHub identity so Clawsights can create your profile at localhost:3000/{handle}."
 
 Run these commands to get the user's GitHub handle and auth token:
 
@@ -53,7 +53,7 @@ Also extract the subtitle line for the preview. It looks like:
 <p class="subtitle">38,539 messages across 4769 sessions | 2025-12-19 to 2026-02-09</p>
 ```
 
-## Step 4: Show Preview and Confirm
+## Step 4: Show Preview and Ask About Narratives
 
 Display a preview of what will appear on their profile. Extract these from the report HTML and show them:
 
@@ -70,44 +70,50 @@ Msgs/Day:      {msgsPerDay}
 Files Touched: {filesTouched}
 Top Languages: {top 3 languages from the chart}
 
-This will be publicly visible at clawsights.com/{handle}
-Your full insights report will be embedded on your profile page.
+How You Use Claude Code:
+  {first 3 lines of the usage narrative, followed by "..."}
+
+Impressive Things You Did:
+  {first 3 win titles, followed by "..."}
+
+This will be publicly visible at localhost:3000/{handle}
 ```
 
-Omit any section that has no data. Then use the AskUserQuestion tool to ask:
+Omit any section that has no data. Then use the AskUserQuestion tool to ask TWO questions:
 
-**Question:** "Ready to upload?"
+**Question 1:** "Include narrative sections on your public profile?"
 - Options:
-  - "Upload" — Upload stats to clawsights.com
+  - "Yes" — Include "How You Use Claude Code" and "Impressive Things You Did" sections on your profile
+  - "No" — Only show quantitative stats (messages, lines, languages, etc.)
+
+**Question 2:** "Ready to upload?"
+- Options:
+  - "Upload" — Upload stats to localhost:3000
   - "Cancel" — Don't upload anything
 
 If they choose Cancel, stop here.
 
+Store whether they chose to include narratives as `include_narratives` (true/false).
+
 ## Step 5: Upload
 
-First, determine the upload URL. Run this command and use the output as the base URL:
+Make a POST request to upload the stats:
 
 ```bash
-echo ${CLAWSIGHTS_URL:-https://clawsights.com}
-```
-
-Then make a POST request using that base URL:
-
-```bash
-curl -s -X POST BASE_URL/api/upload \
+curl -s -X POST http://localhost:3000/api/upload \
   -H "Content-Type: application/json" \
-  -d "{\"github_token\": \"TOKEN_HERE\", \"report_html\": $(cat ~/.claude/usage-data/report.html | jq -Rs .)}"
+  -d "{\"github_token\": \"TOKEN_HERE\", \"report_html\": $(cat ~/.claude/usage-data/report.html | jq -Rs .), \"include_narratives\": BOOLEAN_HERE}"
 ```
 
-Replace `BASE_URL` with the output from the echo command above.
 Replace `TOKEN_HERE` with the actual token from Step 1.
+Replace `BOOLEAN_HERE` with `true` or `false` based on the user's choice in Step 4.
 
 ## Step 6: Show Result
 
 Parse the JSON response and display:
 
 ```
-Uploaded! View your profile: https://clawsights.com/{handle}
+Uploaded! View your profile: http://localhost:3000/{handle}
 
 Your percentiles:
   Messages: top {X}%

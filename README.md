@@ -17,6 +17,7 @@ Next.js 15, Drizzle ORM, Turso (SQLite), Tailwind CSS
 
 ```bash
 npm install
+echo "TURSO_DATABASE_URL=file:local.db" > .env.local
 npm run db:push
 npm run dev
 ```

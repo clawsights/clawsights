@@ -12,13 +12,13 @@ export function CopyCommand({ command }: { command: string }) {
   }
 
   return (
-    <div className="flex items-center rounded-lg bg-zinc-900 border border-zinc-800 font-mono text-sm">
+    <div className="flex items-center rounded-lg bg-slate-100 border border-slate-200 font-mono text-sm overflow-hidden">
       <div className="overflow-x-auto min-w-0 px-4 py-3">
-        <span className="whitespace-nowrap text-zinc-100">{command}</span>
+        <span className="whitespace-nowrap text-slate-700">{command}</span>
       </div>
       <button
         onClick={handleCopy}
-        className="ml-auto px-4 py-3 text-zinc-500 hover:text-zinc-300 transition-colors shrink-0 border-l border-zinc-800"
+        className="ml-auto px-4 py-3 text-slate-400 hover:text-slate-700 transition-colors shrink-0 border-l border-slate-200"
         aria-label="Copy command"
       >
         {copied ? (
