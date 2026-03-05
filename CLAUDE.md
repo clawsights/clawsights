@@ -147,4 +147,18 @@ logger.info("Updated profile", { profileId: 345 });
 logger.warn("Rate limit reached", { endpoint: "/api/results/" });
 logger.error("Failed to process payment", { orderId: "order_123" });
 logger.fatal("Database connection pool exhausted", { database: "users" });
+
+## Checks
+
+Before opening a pull request, install and run the Continue checks skill:
+
+```bash
+npx skills add continuedev/skills --skill check
+/check
+```
+
+`/check` validates the current diff against all check markdown files under `.continue/checks/*.md`.
+All checks should pass before PR creation, or failures must be explicitly acknowledged.
+
+See [docs.continue.dev/checks/running-locally](https://docs.continue.dev/checks/running-locally) for details.
 ```
