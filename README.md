@@ -1,5 +1,6 @@
 # Clawsights
 
+
 Leaderboard for Claude Code users. Run `/clawsights` in Claude Code to upload your `/insights` stats and see where you rank.
 
 ## How it works
